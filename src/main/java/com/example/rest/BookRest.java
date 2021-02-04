@@ -1,6 +1,7 @@
 package com.example.rest;
 
 import javax.annotation.PostConstruct;
+import javax.print.attribute.standard.Media;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
@@ -32,9 +33,9 @@ public class BookRest {
      * @return toString method of book
      */
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("{title}")
-    public String getBook(@PathParam("title") String title) {
+    public Book getBook(@PathParam("title") String title) {
 
         if(library.size() == 0){
             loadMock();
@@ -44,31 +45,51 @@ public class BookRest {
                 .findFirst()
                 .orElse(null);
         if (book != null) {
-            return book.toString();
+            return book;
         } else {
-            return "";
+            return null;
         }
     }
 
     /**
-     * Meant for replacing book with specific title
-     * @param title of the book
-     * @param author of the book
-     * @param isbn of the book
+     * Meant for adding book with specific title
+     * @param newBook Book object
      */
     @PUT
-    @Path("{title}/{author}/{isbn}")
-    public void modifyBook(@PathParam("title") String title, @PathParam("author") String author,
-                               @PathParam("isbn") String isbn) {
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    public String addBook(Book newBook) {
 
         if(library.size() == 0){
             loadMock();
         }
 
-        library = library.stream().filter(book -> !book.getTitle().equals(title))
+        library = library.stream().filter(book -> !book.getTitle().equals(newBook.getTitle()))
                 .collect(Collectors.toCollection(ArrayList::new));
-        Book newBook = new Book(title, author, isbn);
+
         library.add(newBook);
+
+        return "New book added";
+    }
+
+    /**
+     * Meant for editing book.
+     *
+     * @param title
+     * @param author
+     * @param isbn
+     * @throws Exception
+     */
+    @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.TEXT_PLAIN)
+    public String editBook(@FormParam("title") String title, @FormParam("author") String author, @FormParam("isbn") String isbn) throws Exception {
+
+        Book book = new Book(title, author, isbn);
+        library.remove(book);
+        library.add(book);
+
+        return "Edited book.";
     }
 
 }

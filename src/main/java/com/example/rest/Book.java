@@ -1,13 +1,21 @@
 package com.example.rest;
 
-public class Book {
+
+import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
+import java.util.Objects;
+
+@XmlRootElement
+public class Book implements Serializable {
     /**
      * Class that will be used to hold the data for the Rest API Example
      */
 
-    private final String title;
+    private String title;
     private String author;
     private String isbn;
+
+    public Book(){}
 
     public Book(String title, String author, String isbn) {
         this.title = title;
@@ -17,6 +25,10 @@ public class Book {
 
     public String getTitle() {
         return this.title;
+    }
+
+    public void setTitle(String newTitle) {
+        this.title = newTitle;
     }
 
     public String getAuthor() {
@@ -40,4 +52,16 @@ public class Book {
                 this.getTitle(), this.getAuthor(), this.getIsbn());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Book book = (Book) o;
+        return isbn.equals(book.isbn);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(isbn);
+    }
 }
